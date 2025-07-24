@@ -1,5 +1,9 @@
 package com.example.gateway
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -14,7 +18,7 @@ object ProcessingTimes {
      * public USCIS Processing Times API. Returns a stub if the request
      * fails.
      */
-    fun getProcessingTime(formNumber: String, officeCode: String): Map<String, Any> {
+    fun getProcessingTime(formNumber: String, officeCode: String): ProcessingTime {
         if (formNumber.isBlank() || officeCode.isBlank()) {
             throw IllegalArgumentException("form_number and office_code required")
         }
@@ -24,19 +28,22 @@ object ProcessingTimes {
         return try {
             client.newCall(request).execute().use { response ->
                 ensureSuccess(response)
-                val body = response.body?.string() ?: "{}"
-                mapOf(
-                    "form_number" to formNumber,
-                    "office_code" to officeCode,
-                    "raw" to body
+                val body = response.body?.string().orEmpty()
+                val json = Json.parseToJsonElement(body).jsonObject
+                val time = json["processing_time"]?.jsonPrimitive?.content
+                ProcessingTime(
+                    formNumber = formNumber,
+                    officeCode = officeCode,
+                    processingTime = time,
+                    raw = json
                 )
             }
         } catch (e: Exception) {
-            mapOf(
-                "form_number" to formNumber,
-                "office_code" to officeCode,
-                "processing_time" to "N/A",
-                "message" to "Processing time API integration pending"
+            ProcessingTime(
+                formNumber = formNumber,
+                officeCode = officeCode,
+                processingTime = "N/A",
+                message = "Processing time API integration pending"
             )
         }
     }

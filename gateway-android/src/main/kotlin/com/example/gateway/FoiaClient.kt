@@ -1,5 +1,9 @@
 package com.example.gateway
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -13,11 +17,11 @@ class FoiaClient(
 ) {
     private val client = OkHttpClient()
 
-    fun createRequest(jsonData: String): Map<String, Any> {
+    fun createRequest(jsonData: String): FoiaResult {
         if (token == null) {
-            return mapOf(
-                "request_id" to "DUMMY-REQUEST-ID",
-                "message" to "FOIA request creation not yet implemented"
+            return FoiaResult(
+                requestId = "DUMMY-REQUEST-ID",
+                message = "FOIA request creation not yet implemented"
             )
         }
         val url = "$baseUrl/v1/foia-requests".toHttpUrl()
@@ -27,22 +31,29 @@ class FoiaClient(
             .addHeader("Authorization", "Bearer $token")
             .post(body)
             .build()
-        client.newCall(request).execute().use { response ->
-            ensureSuccess(response)
-            val respBody = response.body?.string() ?: "{}"
-            return mapOf("raw" to respBody)
+        return try {
+            client.newCall(request).execute().use { response ->
+                ensureSuccess(response)
+                val respBody = response.body?.string().orEmpty()
+                val json = Json.parseToJsonElement(respBody).jsonObject
+                val id = json["request_id"]?.jsonPrimitive?.content ?: "UNKNOWN"
+                val status = json["status"]?.jsonPrimitive?.content
+                FoiaResult(id, status = status, raw = json)
+            }
+        } catch (e: Exception) {
+            FoiaResult(requestId = "UNKNOWN", status = "ERROR", message = e.message)
         }
     }
 
-    fun checkStatus(requestId: String): Map<String, Any> {
+    fun checkStatus(requestId: String): FoiaResult {
         if (requestId.isBlank()) {
             throw IllegalArgumentException("request_id required")
         }
         if (token == null) {
-            return mapOf(
-                "request_id" to requestId,
-                "status" to "PENDING",
-                "message" to "Connect to the USCIS FOIA API to get real status"
+            return FoiaResult(
+                requestId = requestId,
+                status = "PENDING",
+                message = "Connect to the USCIS FOIA API to get real status"
             )
         }
         val url = "$baseUrl/v1/foia-requests/$requestId".toHttpUrl()
@@ -50,13 +61,16 @@ class FoiaClient(
             .url(url)
             .addHeader("Authorization", "Bearer $token")
             .build()
-        client.newCall(request).execute().use { response ->
-            ensureSuccess(response)
-            val body = response.body?.string() ?: "{}"
-            return mapOf(
-                "request_id" to requestId,
-                "raw" to body
-            )
+        return try {
+            client.newCall(request).execute().use { response ->
+                ensureSuccess(response)
+                val body = response.body?.string().orEmpty()
+                val json = Json.parseToJsonElement(body).jsonObject
+                val status = json["status"]?.jsonPrimitive?.content
+                FoiaResult(requestId = requestId, status = status, raw = json)
+            }
+        } catch (e: Exception) {
+            FoiaResult(requestId = requestId, status = "ERROR", message = e.message)
         }
     }
 
