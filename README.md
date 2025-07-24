@@ -459,6 +459,7 @@ impossible to miss a date by providing seamless calendar connectivity:
     **the user's schedule of immigration-related appointments is
     seamlessly merged with their personal schedule**, reducing the
     chance of oversight.
+    Gateway now requests calendar permissions at runtime, inserts events using `CalendarEvent`, schedules reminder notifications via WorkManager, and updates or cancels calendar entries automatically when appointment dates change.
 
 -   **Time Zone and .ics Considerations:** Since the app may cater to
     users still overseas (e.g. waiting for a consular interview in their
