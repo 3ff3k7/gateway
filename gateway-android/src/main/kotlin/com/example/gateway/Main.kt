@@ -43,6 +43,9 @@ fun main(args: Array<String>) {
                 description = args.getOrNull(5)
             )
         }
+        "study-resources" -> {
+            StudyResources.resources
+        }
         else -> {
             println("Unknown command: ${args[0]}")
             return
