@@ -2,6 +2,9 @@ package com.example.gateway
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
+
+import com.example.gateway.VisaBulletinFetcher
 
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
@@ -43,6 +46,10 @@ fun main(args: Array<String>) {
                 description = args.getOrNull(5)
             )
         }
+        "visa-bulletin" -> {
+            if (args.size < 3) throw IllegalArgumentException("month and year required")
+            VisaBulletinFetcher.fetch(args[1], args[2].toInt())
+        }
         "study-resources" -> {
             StudyResources.resources
         }
@@ -52,5 +59,14 @@ fun main(args: Array<String>) {
         }
     }
 
-    println(Json.encodeToString(result))
+    val output = when (result) {
+        is CaseStatus -> Json.encodeToString(result)
+        is FoiaResult -> Json.encodeToString(result)
+        is ProcessingTime -> Json.encodeToString(result)
+        is CeacStatus -> Json.encodeToString(result)
+        is VisaBulletin -> Json.encodeToString(result)
+        is String -> Json.encodeToString(result)
+        else -> Json.encodeToString(result.toString())
+    }
+    println(output)
 }

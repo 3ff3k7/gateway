@@ -36,3 +36,11 @@ data class CeacStatus(
     val status: String,
     val message: String? = null
 )
+
+@Serializable
+data class VisaBulletin(
+    val month: String,
+    val year: Int,
+    val text: String? = null,
+    val message: String? = null
+)
