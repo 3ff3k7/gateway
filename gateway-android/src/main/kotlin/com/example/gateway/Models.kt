@@ -7,6 +7,7 @@ import kotlinx.serialization.json.JsonElement
 @Serializable
 data class CaseStatus(
     @SerialName("receipt_number") val receiptNumber: String,
+    @SerialName("status_code") val statusCode: String? = null,
     val status: String? = null,
     val message: String? = null,
     val raw: JsonElement? = null

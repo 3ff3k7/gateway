@@ -43,9 +43,13 @@ class UscisClient(
                 val body = response.body?.string().orEmpty()
                 val json = Json.parseToJsonElement(body).jsonObject
                 val status = json["status"]?.jsonPrimitive?.content
+                val statusCode = json["statusCode"]?.jsonPrimitive?.content
+                val message = json["statusMessage"]?.jsonPrimitive?.content
                 CaseStatus(
                     receiptNumber = receipt,
+                    statusCode = statusCode,
                     status = status,
+                    message = message,
                     raw = json
                 )
             }

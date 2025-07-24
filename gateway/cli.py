@@ -6,6 +6,7 @@ from .foia import FOIAClient
 from .processing_times import get_processing_time
 from .state_dept import check_ceac_status
 from .calendar import create_event
+from .models import CaseStatus, FoiaResult, ProcessingTime, CeacStatus
 
 
 def main():
@@ -67,6 +68,8 @@ def main():
         parser.print_help()
         return
 
+    if isinstance(result, (CaseStatus, FoiaResult, ProcessingTime, CeacStatus)):
+        result = result.to_dict()
     print(json.dumps(result, indent=2))
 
 
