@@ -22,20 +22,19 @@ a pitch to USCIS for collaboration once the MVP is ready.
 
 ## Quickstart
 
-This repository includes a small prototype CLI.
-Install dependencies with `pip install -r requirements.txt` and try:
-
-```bash
-python -m gateway.cli case-status YOUR_RECEIPT_NUMBER
-
-```
-
-
-To run the Kotlin CLI, build the project and use the generated script:
+This repository includes a small prototype CLI implemented in Kotlin.
+Build the project and use the generated script:
 
 ```bash
 gradle installDist
 ./gateway-android/build/install/gateway-android/bin/gateway-android case-status YOUR_RECEIPT_NUMBER
+```
+
+Additional commands are available, such as sending a local notification or generating a plan via Gemini:
+
+```bash
+./gateway-android/build/install/gateway-android/bin/gateway-android notify "Hello" "Testing"
+./gateway-android/build/install/gateway-android/bin/gateway-android gemini-plan "schedule biometric appointment"
 ```
 
 
