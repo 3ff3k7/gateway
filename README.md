@@ -31,6 +31,14 @@ python -m gateway.cli case-status YOUR_RECEIPT_NUMBER
 ```
 
 
+To run the Kotlin CLI, build the project and use the generated script:
+
+```bash
+gradle installDist
+./gateway-android/build/install/gateway-android/bin/gateway-android case-status YOUR_RECEIPT_NUMBER
+```
+
+
 ## Integration with Government APIs and Services
 
 **1. USCIS Case Status API:** Gateway will leverage the official **USCIS
