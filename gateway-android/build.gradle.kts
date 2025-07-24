@@ -5,6 +5,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    google()
 }
 
 application {
@@ -22,4 +23,5 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.jsoup:jsoup:1.17.2")
+    implementation("androidx.security:security-crypto:1.1.0-beta01")
 }
