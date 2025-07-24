@@ -13,17 +13,15 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 
 class FoiaClient(
     private val baseUrl: String = "https://sandbox.api.uscis.gov",
-    private val token: String? = null
+    private val credentialsStore: UscisAuth.CredentialsStore = UscisAuth.EnvCredentialsStore()
 ) {
     private val client = OkHttpClient()
 
     fun createRequest(jsonData: String): FoiaResult {
-        if (token == null) {
-            return FoiaResult(
-                requestId = "DUMMY-REQUEST-ID",
-                message = "FOIA request creation not yet implemented"
-            )
-        }
+        val token = UscisAuth.getAccessToken(credentialsStore) ?: return FoiaResult(
+            requestId = "DUMMY-REQUEST-ID",
+            message = "FOIA request creation not yet implemented"
+        )
         val url = "$baseUrl/v1/foia-requests".toHttpUrl()
         val body = jsonData.toRequestBody("application/json".toMediaType())
         val request = Request.Builder()
@@ -49,13 +47,11 @@ class FoiaClient(
         if (requestId.isBlank()) {
             throw IllegalArgumentException("request_id required")
         }
-        if (token == null) {
-            return FoiaResult(
-                requestId = requestId,
-                status = "PENDING",
-                message = "Connect to the USCIS FOIA API to get real status"
-            )
-        }
+        val token = UscisAuth.getAccessToken(credentialsStore) ?: return FoiaResult(
+            requestId = requestId,
+            status = "PENDING",
+            message = "Connect to the USCIS FOIA API to get real status"
+        )
         val url = "$baseUrl/v1/foia-requests/$requestId".toHttpUrl()
         val request = Request.Builder()
             .url(url)

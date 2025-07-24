@@ -11,7 +11,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 
 class UscisClient(
     private val baseUrl: String = "https://sandbox.api.uscis.gov",
-    private val token: String? = null
+    private val credentialsStore: UscisAuth.CredentialsStore = UscisAuth.EnvCredentialsStore()
 ) {
     private val client = OkHttpClient()
 
@@ -25,13 +25,12 @@ class UscisClient(
             throw IllegalArgumentException("receipt number required")
         }
 
-        if (token == null) {
-            return CaseStatus(
+        val token = UscisAuth.getAccessToken(credentialsStore)
+            ?: return CaseStatus(
                 receiptNumber = receipt,
                 status = "PENDING",
                 message = "This is a stub. Connect to the USCIS API to get real data."
             )
-        }
 
         val url = "$baseUrl/v1/case-status/$receipt".toHttpUrl()
         val request = Request.Builder()
