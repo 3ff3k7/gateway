@@ -10,7 +10,7 @@ import okhttp3.Response
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
 class UscisClient(
-    private val baseUrl: String = "https://sandbox.api.uscis.gov",
+    private val baseUrl: String = System.getenv("USCIS_BASE_URL")?.takeIf { it.isNotBlank() } ?: "https://sandbox.api.uscis.gov",
     private val credentialsStore: UscisAuth.CredentialsStore = UscisAuth.EnvCredentialsStore()
 ) {
     private val client = OkHttpClient()

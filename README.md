@@ -35,6 +35,15 @@ To print USCIS study materials for the naturalization test:
 ./gateway-android/build/install/gateway-android/bin/gateway-android study-resources
 ```
 
+### Environment variables
+
+`USCIS_BASE_URL` *(optional)* - Override the base URL used by the USCIS
+clients. If not set, the clients default to `https://sandbox.api.uscis.gov`.
+
+```bash
+export USCIS_BASE_URL=https://api.uscis.gov
+```
+
 
 ## Integration with Government APIs and Services
 
