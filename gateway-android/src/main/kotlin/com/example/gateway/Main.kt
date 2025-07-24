@@ -1,6 +1,5 @@
 package com.example.gateway
 
-
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
         println("Usage: gateway <command>")
@@ -40,6 +39,16 @@ fun main(args: Array<String>) {
                 location = args.getOrNull(4),
                 description = args.getOrNull(5)
             )
+        }
+        "notify" -> {
+            if (args.size < 3) throw IllegalArgumentException("title and message required")
+            Notifier.sendNotification(args[1], args[2])
+            "Notification sent"
+        }
+        "gemini-plan" -> {
+            if (args.size < 2) throw IllegalArgumentException("prompt required")
+            val prompt = args.copyOfRange(1, args.size).joinToString(" ")
+            GeminiOrchestrator.generatePlan(prompt)
         }
         else -> {
             println("Unknown command: ${args[0]}")
