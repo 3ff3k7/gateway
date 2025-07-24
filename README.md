@@ -33,6 +33,12 @@ gradle installDist
 ./gateway-android/build/install/gateway-android/bin/gateway-android case-status YOUR_RECEIPT_NUMBER
 ```
 
+To print USCIS study materials for the naturalization test:
+
+```bash
+./gateway-android/build/install/gateway-android/bin/gateway-android study-resources
+```
+
 
 ## Integration with Government APIs and Services
 
