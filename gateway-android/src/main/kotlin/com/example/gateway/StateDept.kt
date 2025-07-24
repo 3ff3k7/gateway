@@ -16,7 +16,7 @@ object StateDept {
      * no official API, this method submits a POST request and parses the HTML
      * response. If scraping fails it returns a stubbed response.
      */
-    fun checkCeacStatus(caseNumber: String, visaType: String = "IV"): Map<String, Any> {
+    fun checkCeacStatus(caseNumber: String, visaType: String = "IV"): CeacStatus {
         if (caseNumber.isBlank()) {
             throw IllegalArgumentException("case_number required")
         }
@@ -36,17 +36,10 @@ object StateDept {
                 val doc = Jsoup.parse(body)
                 val statusText = doc.selectFirst("#ctl00_MainContent_lblStatus")?.text()
                     ?: "UNKNOWN"
-                mapOf(
-                    "case_number" to caseNumber,
-                    "status" to statusText
-                )
+                CeacStatus(caseNumber = caseNumber, status = statusText)
             }
         } catch (e: Exception) {
-            mapOf(
-                "case_number" to caseNumber,
-                "status" to "UNKNOWN",
-                "message" to "CEAC scraping not yet implemented"
-            )
+            CeacStatus(caseNumber = caseNumber, status = "UNKNOWN", message = "CEAC scraping not yet implemented")
         }
     }
 

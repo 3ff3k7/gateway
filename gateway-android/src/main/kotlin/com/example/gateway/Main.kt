@@ -1,5 +1,7 @@
 package com.example.gateway
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
@@ -47,5 +49,5 @@ fun main(args: Array<String>) {
         }
     }
 
-    println(result)
+    println(Json.encodeToString(result))
 }

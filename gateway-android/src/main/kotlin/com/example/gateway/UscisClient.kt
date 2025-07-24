@@ -1,5 +1,9 @@
 package com.example.gateway
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -16,16 +20,16 @@ class UscisClient(
      * USCIS Case Status API. If authentication is not configured this will
      * return a stubbed response.
      */
-    fun checkCaseStatus(receipt: String): Map<String, Any> {
+    fun checkCaseStatus(receipt: String): CaseStatus {
         if (receipt.isBlank()) {
             throw IllegalArgumentException("receipt number required")
         }
 
         if (token == null) {
-            return mapOf(
-                "receipt_number" to receipt,
-                "status" to "PENDING",
-                "message" to "This is a stub. Connect to the USCIS API to get real data."
+            return CaseStatus(
+                receiptNumber = receipt,
+                status = "PENDING",
+                message = "This is a stub. Connect to the USCIS API to get real data."
             )
         }
 
@@ -34,12 +38,23 @@ class UscisClient(
             .url(url)
             .addHeader("Authorization", "Bearer $token")
             .build()
-        client.newCall(request).execute().use { response ->
-            ensureSuccess(response)
-            val body = response.body?.string() ?: "{}"
-            return mapOf(
-                "receipt_number" to receipt,
-                "raw" to body
+        return try {
+            client.newCall(request).execute().use { response ->
+                ensureSuccess(response)
+                val body = response.body?.string().orEmpty()
+                val json = Json.parseToJsonElement(body).jsonObject
+                val status = json["status"]?.jsonPrimitive?.content
+                CaseStatus(
+                    receiptNumber = receipt,
+                    status = status,
+                    raw = json
+                )
+            }
+        } catch (e: Exception) {
+            CaseStatus(
+                receiptNumber = receipt,
+                status = "ERROR",
+                message = e.message
             )
         }
     }
