@@ -25,4 +25,10 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.jsoup:jsoup:1.17.2")
     implementation("org.apache.pdfbox:pdfbox:2.0.30")
+    testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
