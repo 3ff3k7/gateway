@@ -31,6 +31,16 @@ fun main(args: Array<String>) {
             if (args.size < 2) throw IllegalArgumentException("case number required")
             StateDept.checkCeacStatus(args[1])
         }
+        "create-ics" -> {
+            if (args.size < 4) throw IllegalArgumentException("summary, start, end required")
+            CalendarEvent.createEvent(
+                args[1],
+                args[2],
+                args[3],
+                location = args.getOrNull(4),
+                description = args.getOrNull(5)
+            )
+        }
         else -> {
             println("Unknown command: ${args[0]}")
             return
