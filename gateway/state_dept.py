@@ -1,10 +1,12 @@
 import requests
 from bs4 import BeautifulSoup
 
+from .models import CeacStatus
+
 CEAC_STATUS_URL = "https://ceac.state.gov/CEACStatTracker/Status.aspx?App=NIV"
 
 
-def check_ceac_status(case_number: str, visa_type: str = "IV") -> dict:
+def check_ceac_status(case_number: str, visa_type: str = "IV") -> CeacStatus:
     """Retrieve case status from the State Department CEAC page.
 
     This implementation attempts a form POST and parses the resulting
@@ -21,10 +23,10 @@ def check_ceac_status(case_number: str, visa_type: str = "IV") -> dict:
         soup = BeautifulSoup(resp.text, "html.parser")
         elem = soup.select_one("#ctl00_ContentPlaceHolder1_ucApplicationStatus_lblStatus")
         status = elem.get_text(strip=True) if elem else "UNKNOWN"
-        return {"case_number": case_number, "status": status}
+        return CeacStatus(case_number=case_number, status=status)
     except Exception:
-        return {
-            "case_number": case_number,
-            "status": "UNKNOWN",
-            "message": "CEAC scraping not yet implemented",
-        }
+        return CeacStatus(
+            case_number=case_number,
+            status="UNKNOWN",
+            message="CEAC scraping not yet implemented",
+        )

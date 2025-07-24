@@ -1,5 +1,8 @@
 import os
+
 import requests
+
+from .models import CaseStatus
 
 
 class USCISClient:
@@ -9,24 +12,47 @@ class USCISClient:
         self.token = token or os.getenv("USCIS_API_TOKEN")
         self.session = requests.Session()
 
-    def check_case_status(self, receipt: str) -> dict:
+    def check_case_status(self, receipt: str) -> CaseStatus:
         """Retrieve case status for a USCIS receipt number.
 
-        If no token is configured, returns a stubbed response. Otherwise
-        performs an authenticated GET request to the official API.
+        Returns a :class:`CaseStatus` object populated with the API
+        response. Network errors and HTTP errors are caught and returned
+        in the ``message`` field.
         """
+
         if not receipt:
             raise ValueError("receipt number required")
 
         if not self.token:
-            return {
-                "receipt_number": receipt,
-                "status": "PENDING",
-                "message": "This is a stub. Provide USCIS_API_TOKEN to query the real API.",
-            }
+            return CaseStatus(
+                receipt_number=receipt,
+                status="PENDING",
+                message="This is a stub. Provide USCIS_API_TOKEN to query the real API.",
+            )
 
         headers = {"Authorization": f"Bearer {self.token}"}
         url = f"{self.base_url}/v1/case-status/{receipt}"
-        resp = self.session.get(url, headers=headers, timeout=10)
-        resp.raise_for_status()
-        return resp.json()
+
+        try:
+            resp = self.session.get(url, headers=headers, timeout=10)
+            if resp.status_code == 404:
+                return CaseStatus(
+                    receipt_number=receipt,
+                    status="NOT_FOUND",
+                    message="Receipt number not found",
+                )
+            resp.raise_for_status()
+            data = resp.json()
+            return CaseStatus(
+                receipt_number=receipt,
+                status_code=data.get("statusCode"),
+                status=data.get("status"),
+                message=data.get("statusMessage"),
+                raw=data,
+            )
+        except requests.RequestException as exc:
+            return CaseStatus(
+                receipt_number=receipt,
+                status="ERROR",
+                message=str(exc),
+            )

@@ -38,7 +38,8 @@ class FoiaClient(
                 val json = Json.parseToJsonElement(respBody).jsonObject
                 val id = json["request_id"]?.jsonPrimitive?.content ?: "UNKNOWN"
                 val status = json["status"]?.jsonPrimitive?.content
-                FoiaResult(id, status = status, raw = json)
+                val message = json["statusMessage"]?.jsonPrimitive?.content
+                FoiaResult(id, status = status, message = message, raw = json)
             }
         } catch (e: Exception) {
             FoiaResult(requestId = "UNKNOWN", status = "ERROR", message = e.message)
@@ -67,7 +68,8 @@ class FoiaClient(
                 val body = response.body?.string().orEmpty()
                 val json = Json.parseToJsonElement(body).jsonObject
                 val status = json["status"]?.jsonPrimitive?.content
-                FoiaResult(requestId = requestId, status = status, raw = json)
+                val message = json["statusMessage"]?.jsonPrimitive?.content
+                FoiaResult(requestId = requestId, status = status, message = message, raw = json)
             }
         } catch (e: Exception) {
             FoiaResult(requestId = requestId, status = "ERROR", message = e.message)

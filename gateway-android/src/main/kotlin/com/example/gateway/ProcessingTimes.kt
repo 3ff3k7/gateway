@@ -31,10 +31,12 @@ object ProcessingTimes {
                 val body = response.body?.string().orEmpty()
                 val json = Json.parseToJsonElement(body).jsonObject
                 val time = json["processing_time"]?.jsonPrimitive?.content
+                val message = json["statusMessage"]?.jsonPrimitive?.content
                 ProcessingTime(
                     formNumber = formNumber,
                     officeCode = officeCode,
                     processingTime = time,
+                    message = message,
                     raw = json
                 )
             }

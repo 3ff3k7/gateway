@@ -1,8 +1,10 @@
 import requests
 
+from .models import ProcessingTime
+
 API_URL = "https://egov.uscis.gov/processing-times/api/"
 
-def get_processing_time(form_number, office_code):
+def get_processing_time(form_number: str, office_code: str) -> ProcessingTime:
     """Fetch processing time information for a form and office.
 
     This implementation uses the public USCIS Processing Times API
@@ -17,11 +19,18 @@ def get_processing_time(form_number, office_code):
     try:
         resp = requests.get(url, timeout=10)
         resp.raise_for_status()
-        return resp.json()
-    except Exception:
-        return {
-            "form_number": form_number,
-            "office_code": office_code,
-            "processing_time": "N/A",
-            "message": "Processing time API integration pending",
-        }
+        data = resp.json()
+        return ProcessingTime(
+            form_number=form_number,
+            office_code=office_code,
+            processing_time=data.get("processing_time"),
+            message=data.get("statusMessage"),
+            raw=data,
+        )
+    except Exception as exc:
+        return ProcessingTime(
+            form_number=form_number,
+            office_code=office_code,
+            processing_time="N/A",
+            message="Processing time API integration pending",
+        )
