@@ -20,6 +20,17 @@ Gateway will serve as a meta-guide and task orchestrator for an agent
 (or developer) implementing this plan, and ultimately form the basis of
 a pitch to USCIS for collaboration once the MVP is ready.
 
+## Quickstart
+
+This repository includes a small prototype CLI.
+Install dependencies with `pip install -r requirements.txt` and try:
+
+```bash
+python -m gateway.cli case-status YOUR_RECEIPT_NUMBER
+
+```
+
+
 ## Integration with Government APIs and Services
 
 **1. USCIS Case Status API:** Gateway will leverage the official **USCIS
