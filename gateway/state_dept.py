@@ -4,24 +4,27 @@ from bs4 import BeautifulSoup
 CEAC_STATUS_URL = "https://ceac.state.gov/CEACStatTracker/Status.aspx?App=NIV"
 
 
-def check_ceac_status(case_number, visa_type="IV"):
+def check_ceac_status(case_number: str, visa_type: str = "IV") -> dict:
     """Retrieve case status from the State Department CEAC page.
 
-    Since there is no official API, this function demonstrates how the
-    status page could be scraped by sending a POST request and parsing
-    the HTML response. Currently returns dummy data.
+    This implementation attempts a form POST and parses the resulting
+    HTML page. Many requests require solving a CAPTCHA, so if scraping
+    fails a stubbed response is returned.
     """
     if not case_number:
         raise ValueError("case_number required")
 
-    # In a real implementation we would POST form data:
-    # data = {"CaseNumber": case_number, "VisaType": visa_type}
-    # resp = requests.post(CEAC_STATUS_URL, data=data, timeout=10)
-    # soup = BeautifulSoup(resp.text, "html.parser")
-    # Extract status text from the page...
-
-    return {
-        "case_number": case_number,
-        "status": "UNKNOWN",
-        "message": "CEAC scraping not yet implemented"
-    }
+    form = {"CaseNumber": case_number, "VisaType": visa_type}
+    try:
+        resp = requests.post(CEAC_STATUS_URL, data=form, timeout=10)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "html.parser")
+        elem = soup.select_one("#ctl00_ContentPlaceHolder1_ucApplicationStatus_lblStatus")
+        status = elem.get_text(strip=True) if elem else "UNKNOWN"
+        return {"case_number": case_number, "status": status}
+    except Exception:
+        return {
+            "case_number": case_number,
+            "status": "UNKNOWN",
+            "message": "CEAC scraping not yet implemented",
+        }

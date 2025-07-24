@@ -1,30 +1,32 @@
+import os
 import requests
 
-class USCISClient:
-    def __init__(self, base_url="https://sandbox.api.uscis.gov", token=None):
-        self.base_url = base_url.rstrip("/")
-        self.token = token
 
-    def check_case_status(self, receipt):
+class USCISClient:
+    def __init__(self, base_url: str = "https://sandbox.api.uscis.gov", token: str | None = None):
+        self.base_url = base_url.rstrip("/")
+        # Token may be supplied via env var USCIS_API_TOKEN
+        self.token = token or os.getenv("USCIS_API_TOKEN")
+        self.session = requests.Session()
+
+    def check_case_status(self, receipt: str) -> dict:
         """Retrieve case status for a USCIS receipt number.
 
-        This is a placeholder that demonstrates how the official
-        Case Status API might be called once credentials are
-        configured. It currently returns a dummy response.
+        If no token is configured, returns a stubbed response. Otherwise
+        performs an authenticated GET request to the official API.
         """
         if not receipt:
             raise ValueError("receipt number required")
 
-        # Placeholder: actual implementation would use OAuth2 token
-        # and perform a GET request like:
-        # headers = {"Authorization": f"Bearer {self.token}"}
-        # url = f"{self.base_url}/v1/case-status/{receipt}"
-        # resp = requests.get(url, headers=headers, timeout=10)
-        # resp.raise_for_status()
-        # return resp.json()
+        if not self.token:
+            return {
+                "receipt_number": receipt,
+                "status": "PENDING",
+                "message": "This is a stub. Provide USCIS_API_TOKEN to query the real API.",
+            }
 
-        return {
-            "receipt_number": receipt,
-            "status": "PENDING",
-            "message": "This is a stub. Connect to the USCIS API to get real data."
-        }
+        headers = {"Authorization": f"Bearer {self.token}"}
+        url = f"{self.base_url}/v1/case-status/{receipt}"
+        resp = self.session.get(url, headers=headers, timeout=10)
+        resp.raise_for_status()
+        return resp.json()
