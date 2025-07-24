@@ -556,6 +556,31 @@ etc.[\[21\]](https://developer.uscis.gov/#:~:text=3.%20).)
     official partnership) but uses **authorized APIs** to fetch data on
     the user's behalf, requiring their consent to do so.
 
+    Gateway's Android implementation stores tokens and case numbers in
+    encrypted preferences using Android's Jetpack Security library.
+    Data is tied to device credentials so even if the underlying storage
+    is accessed, the contents remain unreadable without unlocking the
+    device. A simplified example is provided in
+    `SecureStorage.kt`:
+
+    ```kotlin
+    class SecureStorage(context: Context) {
+        private val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .setUserAuthenticationRequired(true,
+                TimeUnit.MINUTES.toSeconds(5))
+            .build()
+
+        private val prefs = EncryptedSharedPreferences.create(
+            context,
+            "gateway_secure_prefs",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
+    ```
+
 -   **Online-Only Design:** By being "online-only", Gateway avoids
     storing large amounts of static data on the device. It does not
     function offline except to show whatever last synced info with a
