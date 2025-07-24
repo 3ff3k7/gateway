@@ -22,16 +22,8 @@ a pitch to USCIS for collaboration once the MVP is ready.
 
 ## Quickstart
 
-This repository includes a small prototype CLI.
-Install dependencies with `pip install -r requirements.txt` and try:
-
-```bash
-python -m gateway.cli case-status YOUR_RECEIPT_NUMBER
-
-```
-
-
-To run the Kotlin CLI, build the project and use the generated script:
+This repository includes a small Kotlin-based CLI. Build the project and
+use the generated script:
 
 ```bash
 gradle installDist
@@ -94,8 +86,7 @@ By calling the USCIS Processing Time API (e.g. at
 the app can inform users how long cases like theirs *usually* take and
 when they might be eligible for an inquiry about delays. This API can be
 accessed by mimicking the official site's requests (as some researchers
-have done in
-R/Python)[\[5\]](https://rd.thecoatlessprofessor.com/uscis-processing/#:~:text=Information%20is%20obtained%20by%20making,Processing%20Time%20API%20found%20at).
+have done using custom scripts)[\[5\]](https://rd.thecoatlessprofessor.com/uscis-processing/#:~:text=Information%20is%20obtained%20by%20making,Processing%20Time%20API%20found%20at).
 Gateway will integrate this carefully, ensuring compliance with any
 usage policies (rate limiting the requests and caching results as
 needed) while providing users a **dashboard of their case progress vs.
